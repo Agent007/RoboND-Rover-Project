@@ -23,6 +23,10 @@ def update_rover(Rover, data):
       print(data.keys())
       # The current speed of the rover in m/s
       Rover.vel = np.float(data["speed"])
+      
+      if Rover.mode is not "stop":
+            Rover.accel.append(Rover.vel)
+      
       # The current position of the rover
       Rover.pos = np.fromstring(data["position"], dtype=float, sep=',')
       # The current yaw angle of the rover
@@ -40,7 +44,7 @@ def update_rover(Rover, data):
       # Picking up flag
       Rover.picking_up = np.int(data["picking_up"])
       
-      print('speed =',Rover.vel, 'position =', Rover.pos, 'throttle =', 
+      print('mode = ', Rover.mode, 'speed =',Rover.vel, 'position =', Rover.pos, 'throttle =', 
       Rover.throttle, 'steer_angle =', Rover.steer, 'near_sample', Rover.near_sample, 
       'picking_up', data["picking_up"])
 

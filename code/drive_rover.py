@@ -21,6 +21,9 @@ import time
 from perception import perception_step
 from decision import decision_step
 from supporting_functions import update_rover, create_output_images
+
+from collections import deque # for storing acceleration (i.e., history/queue of velocities)
+
 # Initialize socketio server and Flask application 
 # (learn more at: https://python-socketio.readthedocs.io/en/latest/)
 sio = socketio.Server()
@@ -53,15 +56,15 @@ class RoverState():
         self.nav_dists = None # Distances of navigable terrain pixels
         self.ground_truth = ground_truth_3d # Ground truth worldmap
         self.mode = 'forward' # Current mode (can be forward or stop)
-        self.throttle_set = 0.2 # Throttle setting when accelerating
-        self.brake_set = 10 # Brake setting when braking
+        self.throttle_set = 0.1 #.2 # Throttle setting when accelerating
+        self.brake_set = 100 # Brake setting when braking
         # The stop_forward and go_forward fields below represent total count
         # of navigable terrain pixels.  This is a very crude form of knowing
         # when you can keep going and when you should stop.  Feel free to
         # get creative in adding new fields or modifying these!
         self.stop_forward = 50 # Threshold to initiate stopping
         self.go_forward = 500 # Threshold to go forward again
-        self.max_vel = 2 # Maximum velocity (meters/second)
+        self.max_vel = 5 #2 # Maximum velocity (meters/second)
         # Image output from perception step
         # Update this image to display your intermediate analysis steps
         # on screen in autonomous mode
@@ -75,6 +78,9 @@ class RoverState():
         self.near_sample = 0 # Will be set to telemetry value data["near_sample"]
         self.picking_up = 0 # Will be set to telemetry value data["picking_up"]
         self.send_pickup = False # Set to True to trigger rock pickup
+        
+        self.accel = deque([], self.stop_forward) # acceleration - history/queue of velocities
+        
 # Initialize our rover 
 Rover = RoverState()
 
